@@ -1,0 +1,8 @@
+{
+  "name": "TechPivot-Status",
+  "description": "StatusNeo is a global AI-native digital transformation firm engineering intelligent systems through Design, Engineering, Automation, and Governance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

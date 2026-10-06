@@ -1,0 +1,84 @@
+import express from 'express';
+import { createServer as createViteServer } from 'vite';
+import { GoogleGenAI } from '@google/genai';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const app = express();
+const PORT = 3000;
+
+app.use(express.json());
+
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+  httpOptions: {
+    headers: {
+      'User-Agent': 'aistudio-build',
+    }
+  }
+});
+
+// Multi-turn Gemini Chat Endpoint
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { messages, role = 'advisor', model = 'gemini-3.5-flash' } = req.body;
+
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: 'Messages array is required' });
+    }
+
+    // Role-specific system instructions
+    let systemInstruction = "You are TechPivot's executive AI advisor and digital transformation strategist. TechPivot specializes in AI-native architecture, agentic automation, cloud engineering, and enterprise governance. Provide structured, actionable, and consultative advice. Maintain an executive yet approachable tone.";
+    
+    if (role === 'architect') {
+      systemInstruction = "You are TechPivot's Principal Enterprise Solutions Architect. You give deep technical architectural recommendations regarding event-driven microservices, LLM orchestration, vector databases, deterministic guardrails, and enterprise security.";
+    } else if (role === 'consultant') {
+      systemInstruction = "You are TechPivot's Senior Management Consultant. You guide C-suite leaders on AI maturity, organizational change management, GCC modernization, cost reduction, and engineering delivery velocity.";
+    }
+
+    // Format conversation history for @google/genai
+    const contents = messages.map((m: { role: string; text: string }) => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.text }]
+    }));
+
+    // Choose model
+    const selectedModel = model === 'gemini-3.1-flash-lite' ? 'gemini-3.1-flash-lite' : 'gemini-3.5-flash';
+
+    const response = await ai.models.generateContent({
+      model: selectedModel,
+      contents,
+      config: {
+        systemInstruction,
+        temperature: 0.7,
+      }
+    });
+
+    const reply = response.text || 'I apologize, but I could not formulate a response at this moment.';
+    res.json({ reply, role: 'model' });
+  } catch (error: any) {
+    console.error('Server Gemini Chat error:', error);
+    res.status(500).json({ 
+      error: error.message || 'An error occurred while communicating with Gemini.' 
+    });
+  }
+});
+
+async function startServer() {
+  const isProd = process.env.NODE_ENV === 'production';
+  if (!isProd) {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: 'spa',
+    });
+    app.use(vite.middlewares);
+  } else {
+    app.use(express.static('dist'));
+  }
+
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running at http://0.0.0.0:${PORT}`);
+  });
+}
+
+startServer();
