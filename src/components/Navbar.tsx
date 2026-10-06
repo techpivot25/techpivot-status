@@ -716,7 +716,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             </nav>
 
             {/* Right Action / Contact Button & Mobile trigger */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
+              {/* Dedicated AI Assistant Button */}
+              <button
+                onClick={() => window.dispatchEvent(new Event('open-gemini-chat'))}
+                className="hidden md:inline-flex items-center gap-2 px-3.5 py-2.5 text-[12.5px] font-bold tracking-wide bg-[#0B3558] hover:bg-[#07243d] text-white rounded-lg transition-all duration-200 cursor-pointer shadow-xs border border-sky-400/30 group"
+                title="Open TechPivot AI Assistant"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+                </span>
+                <Bot className="w-4 h-4 text-cyan-300 group-hover:rotate-12 transition-transform" />
+                <span>AI Assistant</span>
+              </button>
+
               <button
                 onClick={onOpenConsultation}
                 className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 text-[12.5px] font-bold uppercase tracking-wider bg-[#FAC400] text-black hover:bg-[#E5B300] rounded-lg transition-all duration-200 cursor-pointer shadow-2xs"
@@ -1056,9 +1070,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
+                window.dispatchEvent(new Event('open-gemini-chat'));
+              }}
+              className="w-full py-2.5 rounded-lg bg-[#0B3558] text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer hover:bg-[#07243d] transition-colors shadow-2xs"
+            >
+              <Bot className="w-4 h-4 text-cyan-300" />
+              <span>Ask AI Assistant (Gemini)</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
                 setIsLogoModalOpen(true);
               }}
-              className="w-full py-2.5 rounded-lg bg-slate-100 text-slate-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer hover:bg-slate-200 transition-colors"
+              className="w-full py-2 rounded-lg bg-slate-100 text-slate-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer hover:bg-slate-200 transition-colors"
             >
               <Upload className="w-3.5 h-3.5" />
               <span>Upload / Change Brand Logo</span>
